@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8">
+  <title>TAKASHI AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#020617">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .app {
+      background: #020617;
+      padding: 20px;
+      border-radius: 12px;
+      width: 320px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+    h3 {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      outline: none;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 6px;
+      border: none;
+      background: #22c55e;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #reply {
+      margin-top: 15px;
+      background: #1e293b;
+      padding: 10px;
+      border-radius: 6px;
+      min-height: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+    <h3>🤖 TAKASHI AI</h3>
+
+    <input id="userInput" placeholder="Andika ujumbe wako..." />
+
+    <button onclick="respond()">Tuma</button>
+
+    <div id="reply">Karibu! Mimi ni TAKASHI AI 🤖</div>
+  </div>
+
+  <script>
+    function offlineReply(input) {
+      input = input.toLowerCase();
+
+      if (input.includes("habari")) {
+        return "Habari! Mimi ni TAKASHI AI 😊";
+      }
+      if (input.includes("jina")) {
+        return "Jina langu ni TAKASHI AI.";
+      }
+      if (input.includes("msaada")) {
+        return "Nipo hapa kukusaidia, hata bila internet kidogo.";
+      }
+      return "Kwa sasa niko offline. Tafadhali washa internet nipate akili kamili 🤖";
+    }
+
+    async function respond() {
+      const input = document.getElementById("userInput").value;
+      const replyDiv = document.getElementById("reply");
+
+      if (!input) return;
+
+      // Offline mode
+      if (!navigator.onLine) {
+        replyDiv.innerText = offlineReply(input);
+        return;
+      }
+
+      replyDiv.innerText = "TAKASHI AI inafikiria... 🤔";
+
+      try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer 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 "
+          },
+          body: JSON.stringify({
+            model: "gpt-4o-mini",
+            messages: [
+              {
+                role: "system",
+                content: "Wewe ni TAKASHI AI, msaidizi wa Kiswahili, rafiki na mwerevu."
+              },
+              {
+                role: "user",
+                content: input
+              }
+            ]
+          })
+        });
+
+        const data = await response.json();
+        replyDiv.innerText = data.choices[0].message.content;
+
+      } catch (e) {
+        replyDiv.innerText = offlineReply(input);
+      }
+    }
+  </script>
+
+</body>
+</html>
